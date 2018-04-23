@@ -1,7 +1,8 @@
 import collections
 import pytest
+import array
 
-from uintset import UintSet, bit_count
+from uintset import UintSet, bit_count, trim
 
 
 def test_new():
@@ -158,3 +159,15 @@ def test_difference():
         got = s1.difference(s2)
         assert len(got) == len(want)
         assert got == want
+
+
+def test_trim_array():
+    test_cases = [
+        (array.array('L', []), array.array('L', [])),
+        (array.array('L', [0]), array.array('L', [])),
+        (array.array('L', [1, 0]), array.array('L', [1])),
+        (array.array('L', [0, 1]), array.array('L', [0, 1])),
+    ]
+    for a, want in test_cases:
+        trim(a)
+        assert a == want
