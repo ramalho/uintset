@@ -115,6 +115,20 @@ class UintSet():
             del new._words[-1]
         return new
 
+    def difference(self, other):
+        new = self.copy()
+        for i in range(min(len(self._words), len(other._words))):
+            n_word, s_word, o_word = new._words[i], self._words[i], other._words[i]
+            before = bit_count(n_word)
+            n_word ^= o_word & s_word
+            new._len += bit_count(n_word) - before
+            new._words[i] = n_word
+        # trim zero-only words at end of array
+        while new._words and new._words[-1] == 0:
+            del new._words[-1]
+        return new
+
+
 
 def bit_count(n):
     count = 0

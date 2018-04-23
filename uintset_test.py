@@ -81,6 +81,25 @@ def test_copy():
         assert s1 == s2
 
 
+def test_bit_count():
+    test_cases = [
+        (0, 0),
+        (1, 1),
+        (2, 1),
+        (3, 2),
+        (4, 1),
+        (10, 2),
+        (11, 3),
+        (63, 6),
+        (64, 1),
+        (2 ** 64-2, 63),
+        (2 ** 64-1, 64),
+        (2 ** 64, 1),
+    ]
+    for n, want in test_cases:
+        assert bit_count(n) == want
+
+
 def test_union():
     TC = collections.namedtuple('TestCase', 's1 s2 want')
     test_cases = [
@@ -126,20 +145,16 @@ def test_symmetric_difference():
         assert got == want
 
 
-def test_bitcount():
+def test_difference():
     test_cases = [
-        (0, 0),
-        (1, 1),
-        (2, 1),
-        (3, 2),
-        (4, 1),
-        (10, 2),
-        (11, 3),
-        (63, 6),
-        (64, 1),
-        (2 ** 64-2, 63),
-        (2 ** 64-1, 64),
-        (2 ** 64, 1),
+        (UintSet(), UintSet(), UintSet()),
+        (UintSet([1]), UintSet(), UintSet([1])),
+        (UintSet([1]), UintSet([1]), UintSet()),
+        (UintSet([1, 100]), UintSet([100, 1]), UintSet()), # beyond word 0
+        (UintSet([1, 100]), UintSet([2]), UintSet([1, 100])),
+        (UintSet([1, 2, 3, 4]), UintSet([2, 3, 5]), UintSet([1, 4])),
     ]
-    for n, want in test_cases:
-        assert bit_count(n) == want
+    for s1, s2, want in test_cases:
+        got = s1.difference(s2)
+        assert len(got) == len(want)
+        assert got == want
