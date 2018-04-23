@@ -34,7 +34,7 @@ class UintSet():
             if word == 0:
                 continue
             for j in range(64):
-                if word & (1 << j) != 0:
+                if word & (1 << j):
                     yield 64 * i+j
 
     def __repr__(self):
