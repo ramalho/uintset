@@ -68,9 +68,9 @@ class UintSet():
         for i in range(len(s_words)):
             n_word, s_word = n_words[i], s_words[i]
             if n_word != s_word:
-                old_count = bit_count(n_word)
+                before = bit_count(n_word)
                 n_word |= s_word
-                new._len += bit_count(n_word) - old_count
+                new._len += bit_count(n_word) - before
                 n_words[i] = n_word
         return new
 
@@ -86,11 +86,31 @@ class UintSet():
         for i in range(len(n_words)):
             n_word, l_word = n_words[i], l_words[i]
             if n_word != l_word:
-                old_count = bit_count(n_word)
+                before = bit_count(n_word)
                 n_word &= l_word
-                new._len += bit_count(n_word) - old_count
+                new._len += bit_count(n_word) - before
                 n_words[i] = n_word
-        # trim redundant words at end of array
+        # trim zero-only words at end of array
+        while new._words and new._words[-1] == 0:
+            del new._words[-1]
+        return new
+
+    def symmetric_difference(self, other):
+        if len(self) > len(other):
+            longer = self
+            shorter = other
+        else:
+            longer = other
+            shorter = self
+        new = longer.copy()
+        n_words, s_words = new._words, shorter._words
+        for i in range(len(s_words)):
+            n_word, s_word = n_words[i], s_words[i]
+            before = bit_count(n_word)
+            n_word ^= s_word
+            new._len += bit_count(n_word) - before
+            n_words[i] = n_word
+        # trim zero-only words at end of array
         while new._words and new._words[-1] == 0:
             del new._words[-1]
         return new

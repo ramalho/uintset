@@ -111,12 +111,28 @@ def test_intersection():
         assert got == want
 
 
+def test_symmetric_difference():
+    test_cases = [
+        (UintSet(), UintSet(), UintSet()),
+        (UintSet([1]), UintSet(), UintSet([1])),
+        (UintSet([1]), UintSet([1]), UintSet()),
+        (UintSet([1, 100]), UintSet([100, 1]), UintSet()), # beyond word 0
+        (UintSet([1, 100]), UintSet([2]), UintSet([1, 100, 2])),
+        (UintSet([1, 2, 3, 4]), UintSet([2, 3, 5]), UintSet([1, 4, 5])),
+    ]
+    for s1, s2, want in test_cases:
+        got = s1.symmetric_difference(s2)
+        assert len(got) == len(want)
+        assert got == want
+
+
 def test_bitcount():
     test_cases = [
         (0, 0),
         (1, 1),
         (2, 1),
         (3, 2),
+        (4, 1),
         (10, 2),
         (11, 3),
         (63, 6),
