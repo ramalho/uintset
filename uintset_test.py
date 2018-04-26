@@ -1,7 +1,7 @@
 import pytest
 import array
 
-from uintset import UintSet, bit_count, trim
+from uintset import UintSet, bit_count, trim, WORD_SIZE
 
 
 def test_new():
@@ -255,12 +255,13 @@ def test_pop_not_found():
     assert 'pop from an empty set' in str(excinfo.value)
 
 
-def test_pop0():
-    want = 0
-    s = UintSet([want])
-    got = s.pop()
-    assert got == want
-    assert len(s) == 0
+def test_pop():
+    test_cases = [0, 1, WORD_SIZE-1, WORD_SIZE, WORD_SIZE+1, 100]
+    for want in test_cases:
+        s = UintSet([want])
+        got = s.pop()
+        assert got == want
+        assert len(s) == 0
 
 
 def test_pop2():
@@ -270,4 +271,4 @@ def test_pop2():
     assert len(s) == 1
     got.append(s.pop())
     assert got == want
-
+    assert len(s) == 0
