@@ -35,12 +35,12 @@ class UintSet():
                 (self._words[word] >> bit) & 1 == 1)
 
     def __iter__(self):
-        for i, word in enumerate(self._words):
-            if word == 0:
+        for word, bitmap in enumerate(self._words):
+            if bitmap == 0:
                 continue
-            for j in range(WORD_SIZE):
-                if word & (1 << j):
-                    yield WORD_SIZE * i+j
+            for bit in range(WORD_SIZE):
+                if bitmap & (1 << bit):
+                    yield WORD_SIZE * word + bit
 
     def __repr__(self):
         parts = [self.__class__.__name__, '(']
@@ -136,20 +136,25 @@ class UintSet():
             raise KeyError(elem)
 
     def pop(self):
-        if self:
-            bits = self._words[-1]
-            bit = WORD_SIZE - 1
-            while bit >= 0:
-                if bits & (1 << bit):
-                    self._words[-1] &= (1 << bit) ^ INVERT_MASK
-                    elem = WORD_SIZE * (len(self._words) - 1) + bit
-                    trim(self._words)
-                    self._len -= 1
-                    return elem
-                bit -= 1
-            assert False, 'Should never get here'
-        else:
+        if not self:
             raise KeyError('pop from an empty set')
+
+        bitmap = self._words[-1]
+        word = WORD_SIZE * (len(self._words) - 1)
+        bit = WORD_SIZE - 1
+        while bit >= 0:
+            bitmask = 1 << bit
+            if bitmap & bitmask:
+                break
+            bit -= 1
+        else:
+            assert False, 'Should never get here'
+
+        elem = word + bit
+        self._words[-1] &= bitmask ^ INVERT_MASK
+        self._len -= 1
+        trim(self._words)
+        return elem
 
 
 def short_long(a, b):
