@@ -216,10 +216,8 @@ def test_trim_array():
 
 def test_remove():
     test_cases = [
-        (UintSet(), 1, UintSet()),
         (UintSet([0]), 0, UintSet()),
         (UintSet([1, 2, 3]), 2, UintSet([1, 3])),
-        (UintSet([1, 2, 3]), 9, UintSet([1, 2, 3])),
     ]
     for s, elem, want in test_cases:
         s.remove(elem)
@@ -232,3 +230,44 @@ def test_remove_all():
     for e in elems:
         set.remove(e)
     assert len(set) == 0
+
+
+def test_remove_not_found():
+    s = UintSet()
+    elem = 1
+    with pytest.raises(KeyError) as excinfo:
+        s.remove(elem)
+    assert str(excinfo.value) == str(elem)
+
+
+def test_remove_not_found_2():
+    s = UintSet([1, 3])
+    elem = 2
+    with pytest.raises(KeyError) as excinfo:
+        s.remove(elem)
+    assert str(excinfo.value) == str(elem)
+
+
+def test_pop_not_found():
+    s = UintSet()
+    with pytest.raises(KeyError) as excinfo:
+        s.pop()
+    assert 'pop from an empty set' in str(excinfo.value)
+
+
+def test_pop0():
+    want = 0
+    s = UintSet([want])
+    got = s.pop()
+    assert got == want
+    assert len(s) == 0
+
+
+def test_pop2():
+    want = [2, 1]
+    s = UintSet(want)
+    got = [s.pop()]
+    assert len(s) == 1
+    got.append(s.pop())
+    assert got == want
+

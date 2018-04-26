@@ -132,6 +132,24 @@ class UintSet():
             self._words[word] &= (1 << bit) ^ INVERT_MASK
             self._len -= 1
             trim(self._words)
+        else:
+            raise KeyError(elem)
+
+    def pop(self):
+        if self:
+            word = self._words[-1]
+            bit = WORD_SIZE - 1
+            while bit >= 0:
+                if word & (1 << bit):
+                    self._words[-1] &= (1 << bit) ^ INVERT_MASK
+                    elem = WORD_SIZE * (len(self._words) - 1) + bit
+                    trim(self._words)
+                    self._len -= 1
+                    return elem
+                bit -= 1
+            assert False, 'Should never get here'
+        else:
+            raise KeyError('pop from an empty set')
 
 
 def short_long(a, b):
