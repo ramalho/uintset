@@ -61,7 +61,7 @@ class UintSet():
         clone._len = self._len
         return clone
 
-    def union(self, other):
+    def __or__(self, other):
         shorter, longer = short_long(self, other)
         new = longer.copy()
         n_words, s_words = new._words, shorter._words
@@ -74,7 +74,10 @@ class UintSet():
                 n_words[i] = n_word
         return new
 
-    def intersection(self, other):
+    def union(self, other):
+        return self | other
+
+    def __and__(self, other):
         shorter, longer = short_long(self, other)
         new = shorter.copy()
         n_words, l_words = new._words, longer._words
@@ -88,7 +91,10 @@ class UintSet():
         trim(new._words)
         return new
 
-    def symmetric_difference(self, other):
+    def intersection(self, other):
+        return self & other
+
+    def __xor__(self, other):
         shorter, longer = short_long(self, other)
         new = longer.copy()
         n_words, s_words = new._words, shorter._words
@@ -101,7 +107,10 @@ class UintSet():
         trim(new._words)
         return new
 
-    def difference(self, other):
+    def symmetric_difference(self, other):
+        return self ^ other
+
+    def __sub__(self, other):
         new = self.copy()
         n_words, s_words, o_words = new._words, self._words, other._words
         for i in range(min(len(self._words), len(other._words))):
@@ -112,6 +121,9 @@ class UintSet():
             new._words[i] = n_word
         trim(new._words)
         return new
+
+    def difference(self, other):
+        return self - other
 
     def remove(self, elem):
         word, bit = elem // WORD_SIZE, elem % WORD_SIZE

@@ -1,4 +1,3 @@
-import collections
 import pytest
 import array
 
@@ -57,17 +56,16 @@ def test_repr():
 
 
 def test_eq():
-    TC = collections.namedtuple('TestCase', 's1 s2 want')
     test_cases = [
-        TC(UintSet(), UintSet(), True),
-        TC(UintSet([1]), UintSet(), False),
-        TC(UintSet(), UintSet([1]), False),
-        TC(UintSet([1, 2, 100]), UintSet([100, 2, 1]), True), # beyond word 0
-        TC(UintSet([1, 100]), UintSet([1, 101]), False),
-        TC(UintSet([1, 100]), UintSet([1, 100, 1000]), False),
+        (UintSet(), UintSet(), True),
+        (UintSet([1]), UintSet(), False),
+        (UintSet(), UintSet([1]), False),
+        (UintSet([1, 2, 100]), UintSet([100, 2, 1]), True), # beyond word 0
+        (UintSet([1, 100]), UintSet([1, 101]), False),
+        (UintSet([1, 100]), UintSet([1, 100, 1000]), False),
     ]
-    for t in test_cases:
-        assert (t.s1 == t.s2) is t.want
+    for s1, s2, want in test_cases:
+        assert (s1 == s2) is want
 
 
 def test_copy():
@@ -101,23 +99,34 @@ def test_bit_count():
         assert bit_count(n) == want
 
 
-def test_union():
-    TC = collections.namedtuple('TestCase', 's1 s2 want')
-    test_cases = [
-        TC(UintSet(), UintSet(), UintSet()),
-        TC(UintSet([1]), UintSet(), UintSet([1])),
-        TC(UintSet(), UintSet([1]), UintSet([1])),
-        TC(UintSet([1, 100]), UintSet([100, 1]), UintSet([100, 1])), # beyond word 0
-        TC(UintSet([1, 100]), UintSet([2]), UintSet([1, 2, 100])),
+@pytest.fixture
+def union_cases():
+    return [
+        (UintSet(), UintSet(), UintSet()),
+        (UintSet([1]), UintSet(), UintSet([1])),
+        (UintSet(), UintSet([1]), UintSet([1])),
+        (UintSet([1, 100]), UintSet([100, 1]), UintSet([100, 1])), # beyond word 0
+        (UintSet([1, 100]), UintSet([2]), UintSet([1, 2, 100])),
     ]
-    for t in test_cases:
-        got = t.s1.union(t.s2)
-        assert len(got) == len(t.want)
-        assert got == t.want
 
 
-def test_intersection():
-    test_cases = [
+def test_or_op(union_cases):
+    for s1, s2, want in union_cases:
+        got = s1 | s2
+        assert len(got) == len(want)
+        assert got == want
+
+
+def test_union(union_cases):
+    for s1, s2, want in union_cases:
+        got = s1.union(s2)
+        assert len(got) == len(want)
+        assert got == want
+
+
+@pytest.fixture
+def intersection_cases():
+    return [
         (UintSet(), UintSet(), UintSet()),
         (UintSet([1]), UintSet(), UintSet()),
         (UintSet([1]), UintSet([1]), UintSet([1])),
@@ -125,14 +134,25 @@ def test_intersection():
         (UintSet([1, 100]), UintSet([2]), UintSet()),
         (UintSet([1, 2, 3, 4]), UintSet([2, 3, 5]), UintSet([2, 3])),
     ]
-    for s1, s2, want in test_cases:
+
+
+def test_and_op(intersection_cases):
+    for s1, s2, want in intersection_cases:
+        got = s1 & s2
+        assert len(got) == len(want)
+        assert got == want
+
+
+def test_intersection(intersection_cases):
+    for s1, s2, want in intersection_cases:
         got = s1.intersection(s2)
         assert len(got) == len(want)
         assert got == want
 
 
-def test_symmetric_difference():
-    test_cases = [
+@pytest.fixture
+def symmetric_diff_cases():
+    return [
         (UintSet(), UintSet(), UintSet()),
         (UintSet([1]), UintSet(), UintSet([1])),
         (UintSet([1]), UintSet([1]), UintSet()),
@@ -140,14 +160,25 @@ def test_symmetric_difference():
         (UintSet([1, 100]), UintSet([2]), UintSet([1, 100, 2])),
         (UintSet([1, 2, 3, 4]), UintSet([2, 3, 5]), UintSet([1, 4, 5])),
     ]
-    for s1, s2, want in test_cases:
+
+
+def test_xor_op(symmetric_diff_cases):
+    for s1, s2, want in symmetric_diff_cases:
+        got = s1 ^ s2
+        assert len(got) == len(want)
+        assert got == want
+
+
+def test_symmetric_difference(symmetric_diff_cases):
+    for s1, s2, want in symmetric_diff_cases:
         got = s1.symmetric_difference(s2)
         assert len(got) == len(want)
         assert got == want
 
 
-def test_difference():
-    test_cases = [
+@pytest.fixture
+def difference_cases():
+    return [
         (UintSet(), UintSet(), UintSet()),
         (UintSet([1]), UintSet(), UintSet([1])),
         (UintSet([1]), UintSet([1]), UintSet()),
@@ -155,7 +186,17 @@ def test_difference():
         (UintSet([1, 100]), UintSet([2]), UintSet([1, 100])),
         (UintSet([1, 2, 3, 4]), UintSet([2, 3, 5]), UintSet([1, 4])),
     ]
-    for s1, s2, want in test_cases:
+
+
+def test_sub_op(difference_cases):
+    for s1, s2, want in difference_cases:
+        got = s1 - s2
+        assert len(got) == len(want)
+        assert got == want
+
+
+def test_difference(difference_cases):
+    for s1, s2, want in difference_cases:
         got = s1.difference(s2)
         assert len(got) == len(want)
         assert got == want
