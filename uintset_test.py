@@ -183,3 +183,11 @@ def test_remove():
     for s, elem, want in test_cases:
         s.remove(elem)
         assert s == want
+
+
+def test_remove_all():
+    elems = [1, 2, 3]
+    set = UintSet(elems)
+    for e in elems:
+        set.remove(e)
+    assert len(set) == 0
