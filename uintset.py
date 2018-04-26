@@ -1,10 +1,15 @@
 import array
 import copy
 
+WORD_SIZE = 64
+ARRAY_TYPECODE = 'Q'  # unsigned long long -> 8 bytes
+INVERT_MASK = 2 ** WORD_SIZE - 1
+
+
 class UintSet():
 
     def __init__(self, it=None):
-        self._words = array.array('L')
+        self._words = array.array(ARRAY_TYPECODE)
         self._len = 0
         if it is not None:
             for i in it:
@@ -18,14 +23,14 @@ class UintSet():
             raise ValueError('UintSet elements must be >= 0')
         if elem in self:
             return
-        word, bit = elem // 64, elem % 64
+        word, bit = elem // WORD_SIZE, elem % WORD_SIZE
         while word >= len(self._words):
             self._words.append(0)
         self._words[word] |= (1 << bit)
         self._len += 1
 
     def __contains__(self, elem):
-        word, bit = elem // 64, elem % 64
+        word, bit = elem // WORD_SIZE, elem % WORD_SIZE
         return (word < len(self._words) and
                 (self._words[word] >> bit) & 1 == 1)
 
@@ -33,9 +38,9 @@ class UintSet():
         for i, word in enumerate(self._words):
             if word == 0:
                 continue
-            for j in range(64):
+            for j in range(WORD_SIZE):
                 if word & (1 << j):
-                    yield 64 * i+j
+                    yield WORD_SIZE * i+j
 
     def __repr__(self):
         parts = [self.__class__.__name__, '(']
@@ -107,6 +112,14 @@ class UintSet():
             new._words[i] = n_word
         trim(new._words)
         return new
+
+    def remove(self, elem):
+        word, bit = elem // WORD_SIZE, elem % WORD_SIZE
+        if (word < len(self._words) and
+            (self._words[word] >> bit) & 1 == 1):
+            self._words[word] &= (1 << bit) ^ INVERT_MASK
+            self._len -= 1
+            trim(self._words)
 
 
 def short_long(a, b):

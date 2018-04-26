@@ -171,3 +171,15 @@ def test_trim_array():
     for a, want in test_cases:
         trim(a)
         assert a == want
+
+
+def test_remove():
+    test_cases = [
+        (UintSet(), 1, UintSet()),
+        (UintSet([0]), 0, UintSet()),
+        (UintSet([1, 2, 3]), 2, UintSet([1, 3])),
+        (UintSet([1, 2, 3]), 9, UintSet([1, 2, 3])),
+    ]
+    for s, elem, want in test_cases:
+        s.remove(elem)
+        assert s == want
