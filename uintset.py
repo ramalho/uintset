@@ -137,10 +137,10 @@ class UintSet():
 
     def pop(self):
         if self:
-            word = self._words[-1]
+            bits = self._words[-1]
             bit = WORD_SIZE - 1
             while bit >= 0:
-                if word & (1 << bit):
+                if bits & (1 << bit):
                     self._words[-1] &= (1 << bit) ^ INVERT_MASK
                     elem = WORD_SIZE * (len(self._words) - 1) + bit
                     trim(self._words)

@@ -264,11 +264,11 @@ def test_pop():
         assert len(s) == 0
 
 
-def test_pop2():
-    want = [2, 1]
+def test_pop_all():
+    want = [100, 1, 0]
     s = UintSet(want)
-    got = [s.pop()]
-    assert len(s) == 1
-    got.append(s.pop())
+    got = []
+    while s:
+        got.append(s.pop())
+        assert len(s) == (len(want) - len(got))
     assert got == want
-    assert len(s) == 0
