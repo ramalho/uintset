@@ -1,7 +1,7 @@
 import pytest
 import array
 
-from uintset import UintSet, bit_count, trim, bit_on, WORD_SIZE
+from uintset import UintSet, bit_count, trim, get_bit, unset_bit, WORD_SIZE
 
 
 def test_new():
@@ -274,13 +274,25 @@ def test_pop_all():
     assert got == want
 
 
-def test_bit_on():
+def test_get_bit():
     test_cases = [
-        (0, False),
-        (1, True),
-        (2, False),
-        (3, True),
+        (0b1010, 0, 0),
+        (0b1010, 1, 1),
+        (0b1010, 2, 0),
+        (0b1010, 3, 1),
     ]
-    for bit, want in test_cases:
-        got = bit_on(0b1010, bit)
+    for bitmap, bit, want in test_cases:
+        got = get_bit(bitmap, bit)
+        assert got == want
+
+
+def test_unset_bit():
+    test_cases = [
+        (0b1010, 0, 0b1010),
+        (0b1010, 1, 0b1000),
+        (0b1010, 2, 0b1010),
+        (0b1010, 3, 0b0010),
+    ]
+    for bitmap, bit, want in test_cases:
+        got = unset_bit(bitmap, bit)
         assert got == want

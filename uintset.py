@@ -2,7 +2,8 @@ import array
 import copy
 
 WORD_SIZE = 64
-ARRAY_TYPECODE = 'Q'  # unsigned long long -> 8 bytes
+# typecodes: 'L' -> 32 bits, 'Q' -> 64 bits
+ARRAY_TYPECODE = 'Q'
 INVERT_MASK = 2 ** WORD_SIZE - 1
 
 
@@ -32,14 +33,14 @@ class UintSet():
     def __contains__(self, elem):
         word, bit = elem // WORD_SIZE, elem % WORD_SIZE
         return (word < len(self._words) and
-                bit_on(self._words[word], bit))
+                get_bit(self._words[word], bit))
 
     def __iter__(self):
         for word, bitmap in enumerate(self._words):
             if bitmap == 0:
                 continue
             for bit in range(WORD_SIZE):
-                if bit_on(bitmap, bit):
+                if get_bit(bitmap, bit):
                     yield WORD_SIZE * word + bit
 
     def __repr__(self):
@@ -127,11 +128,12 @@ class UintSet():
 
     def remove(self, elem):
         word, bit = elem // WORD_SIZE, elem % WORD_SIZE
-        if (word < len(self._words) and
-            bit_on(self._words[word], bit)):
-            self._words[word] &= (1 << bit) ^ INVERT_MASK
+        s_words = self._words
+        if (word < len(s_words) and
+            get_bit(s_words[word], bit)):
+            s_words[word] = unset_bit(s_words[word], bit)
             self._len -= 1
-            trim(self._words)
+            trim(s_words)
         else:
             raise KeyError(elem)
 
@@ -143,15 +145,14 @@ class UintSet():
         word = WORD_SIZE * (len(self._words) - 1)
         bit = WORD_SIZE - 1
         while bit >= 0:
-            bitmask = 1 << bit
-            if bitmap & bitmask:
+            if get_bit(bitmap, bit):
                 break
             bit -= 1
         else:
             assert False, 'Should never get here'
 
         elem = word + bit
-        self._words[-1] &= bitmask ^ INVERT_MASK
+        self._words[-1] = unset_bit(bitmap, bit)
         self._len -= 1
         trim(self._words)
         return elem
@@ -163,11 +164,11 @@ def short_long(a, b):
     return b, a
 
 
-def bit_count(word):
+def bit_count(bitmap):
     count = 0
-    while word:
-        count += word & 1
-        word >>= 1
+    while bitmap:
+        count += bitmap & 1
+        bitmap >>= 1
     return count
 
 
@@ -176,5 +177,10 @@ def trim(arr):
         del arr[-1]
 
 
-def bit_on(word, bit):
-    return bool(word >> bit & 1)
+def get_bit(bitmap, bit):
+    return (bitmap >> bit) & 1
+
+
+def unset_bit(bitmap, bit):
+    return bitmap & ((1 << bit) ^ INVERT_MASK)
+
