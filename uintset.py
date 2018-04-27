@@ -32,14 +32,14 @@ class UintSet():
     def __contains__(self, elem):
         word, bit = elem // WORD_SIZE, elem % WORD_SIZE
         return (word < len(self._words) and
-                (self._words[word] >> bit) & 1 == 1)
+                bit_on(self._words[word], bit))
 
     def __iter__(self):
         for word, bitmap in enumerate(self._words):
             if bitmap == 0:
                 continue
             for bit in range(WORD_SIZE):
-                if bitmap & (1 << bit):
+                if bit_on(bitmap, bit):
                     yield WORD_SIZE * word + bit
 
     def __repr__(self):
@@ -128,7 +128,7 @@ class UintSet():
     def remove(self, elem):
         word, bit = elem // WORD_SIZE, elem % WORD_SIZE
         if (word < len(self._words) and
-            (self._words[word] >> bit) & 1 == 1):
+            bit_on(self._words[word], bit)):
             self._words[word] &= (1 << bit) ^ INVERT_MASK
             self._len -= 1
             trim(self._words)
@@ -163,14 +163,18 @@ def short_long(a, b):
     return b, a
 
 
-def bit_count(n):
+def bit_count(word):
     count = 0
-    while n:
-        count += n & 1
-        n >>= 1
+    while word:
+        count += word & 1
+        word >>= 1
     return count
 
 
 def trim(arr):
     while arr and arr[-1] == 0:
         del arr[-1]
+
+
+def bit_on(word, bit):
+    return bool(word >> bit & 1)
