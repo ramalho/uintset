@@ -78,9 +78,11 @@ class UintSet():
     def union(self, *others):
         new_set = self.copy()
         for other in others:
+            # TODO: verify element types
             if not hasattr(other, '_words'):
                 other = UintSet(other)
-            new_set = new_set | other  # TODO: compute this in-place
+            # TODO: optmize by computing in-place
+            new_set = new_set | other
         return new_set
 
     def __and__(self, other):
