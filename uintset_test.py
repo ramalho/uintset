@@ -124,6 +124,23 @@ def test_union(union_cases):
         assert got == want
 
 
+def test_union_iterable(union_cases):
+    for s1, s2, want in union_cases:
+        it = list(s2)
+        got = s1.union(it)
+        assert len(got) == len(want)
+        assert got == want
+
+
+def test_union_iterable_multiple():
+    s = UintSet([1, 3, 5])
+    it1 = [2, 4, 6]
+    it2 = {10, 11, 12}
+    want = UintSet({1, 2, 3, 4, 5, 6, 10, 11, 12})
+    got = s.union(it1, it2)
+    assert got == want
+
+
 @pytest.fixture
 def intersection_cases():
     return [

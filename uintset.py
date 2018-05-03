@@ -75,8 +75,13 @@ class UintSet():
                 n_words[i] = n_word
         return new
 
-    def union(self, other):
-        return self | other
+    def union(self, *others):
+        new_set = self.copy()
+        for other in others:
+            if not hasattr(other, '_words'):
+                other = UintSet(other)
+            new_set = new_set | other  # TODO: compute this in-place
+        return new_set
 
     def __and__(self, other):
         shorter, longer = short_long(self, other)
@@ -183,4 +188,3 @@ def get_bit(bitmap, bit):
 
 def unset_bit(bitmap, bit):
     return bitmap & ((1 << bit) ^ INVERT_MASK)
-
