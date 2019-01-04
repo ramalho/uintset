@@ -1,9 +1,16 @@
 import array
 import copy
+import sys
 
-WORD_SIZE = 64
-# typecodes: 'L' -> 32 bits, 'Q' -> 64 bits
-ARRAY_TYPECODE = 'Q'
+MAXSIZE_64_BITS =  2**63 - 1
+
+if sys.maxsize == MAXSIZE_64_BITS: 
+    WORD_SIZE = 64
+    ARRAY_TYPECODE = 'Q'
+else:  # assume 32 bits
+    WORD_SIZE = 32
+    ARRAY_TYPECODE = 'L'
+
 INVERT_MASK = 2 ** WORD_SIZE - 1
 
 
